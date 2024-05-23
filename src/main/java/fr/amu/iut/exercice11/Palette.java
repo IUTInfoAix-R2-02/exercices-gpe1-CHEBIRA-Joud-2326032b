@@ -1,6 +1,12 @@
 package fr.amu.iut.exercice1;
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringBinding;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -32,8 +38,21 @@ public class Palette extends Application {
     private HBox boutons;
 
     private Label texteDuBas;
+    private IntegerProperty nbFois = new SimpleIntegerProperty();
+    private StringProperty message = new SimpleStringProperty("");
+
+    private StringProperty couleurPanneau = new SimpleStringProperty("#000000");
 
 
+
+    private void createBindings(){
+        BooleanProperty pasEncoreDeClic = new SimpleBooleanProperty(true);
+        pasEncoreDeClic.bind(Bindings.equal(0, nbFois));
+        texteDuHaut.textProperty().bind(Bindings.when(pasEncoreDeClic).then("Aucune couleur choisi").otherwise(Bindings.concat(message, " choisi ", nbFois.asString(), " fois")));
+        panneau.styleProperty().bind(Bindings.concat("-fx-background-color : ", couleurPanneau));
+        texteDuBas.textProperty().bind(Bindings.concat("Le ", message, " est une jolie couleur !"));
+        texteDuBas.styleProperty().bind(Bindings.concat("-fx-text-fill : ", couleurPanneau));
+    }
     @Override
     public void start(Stage primaryStage) {
         root = new BorderPane();
@@ -56,9 +75,26 @@ public class Palette extends Application {
         vert = new Button("Vert");
         rouge = new Button("Rouge");
         bleu = new Button("Bleu");
-
+        createBindings();
         /* VOTRE CODE ICI */
-
+        vert.setOnAction(actionEvent -> {
+            nbVert++;
+            message.set("Vert");
+            nbFois.set(nbVert);
+            couleurPanneau.set("green");
+        });
+        rouge.setOnAction(actionEvent -> {
+            nbRouge++;
+            nbFois.set(nbRouge);
+            message.set("Rouge");
+            couleurPanneau.set("red");
+        });
+        bleu.setOnAction(actionEvent -> {
+            nbBleu++;
+            nbFois.set(nbBleu);
+            message.set("Bleu");
+            couleurPanneau.set("blue");
+        });
         boutons.getChildren().addAll(vert, rouge, bleu);
 
         root.setCenter(panneau);
